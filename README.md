@@ -5,7 +5,7 @@ Test fo Orangepi pc
 
 ## Download
 ### For Orangepi Pi
-    git clone https://github.com/zhaolei/WiringOP.git -b h5
+    git clone https://github.com/tumugin/WiringOP.git -b h5
 ## Installation
     cd WiringOP
     chmod +x ./build
