@@ -1466,77 +1466,98 @@ int piBoardRev (void)
 
 void piBoardId (int *model, int *rev, int *mem, int *maker, int *overVolted)
 {
-  FILE *cpuFd ;
-  char line [120] ;
-  char *c ;
+	FILE *cpuFd ;
+	char line [40] ;
+	char *c;
+	char revision[40];
+	unsigned int i = 0;
 
-  (void)piBoardRev () ;	// Call this first to make sure all's OK. Don't care about the result.
+	if ((cpuFd = fopen ("/etc/orangepi-release", "r")) == NULL)
+		if ((cpuFd = fopen ("/etc/armbian-release", "r")) == NULL)
+			piGpioLayoutOops ("Unable to open /etc/orangepi-release or /etc/armbian-release.");
 
-  if ((cpuFd = fopen ("/proc/cpuinfo", "r")) == NULL)
-    piBoardRevOops ("Unable to open /proc/cpuinfo") ;
+	while (fgets (line, 40, cpuFd) != NULL)
+	if (strncmp (line, "BOARD=", 6) == 0)
+		break ;
 
-  while (fgets (line, 120, cpuFd) != NULL)
-    if (strncmp (line, "Revision", 8) == 0)
-      break ;
+	fclose (cpuFd) ;
 
-  fclose (cpuFd) ;
+	if (strncmp (line, "BOARD=", 6) != 0)
+		piGpioLayoutOops ("No \"Revision\" line") ;
 
-  if (strncmp (line, "Revision", 8) != 0){
-    if(isH5()){
-      strcpy(line,"0000") ;
-    }else{
-      piBoardRevOops ("No \"Revision\" line") ;
-    }
-  }
+	if (wiringPiDebug)
+		printf ("piBoardId: Revision string: %s\n", line) ;
 
-// Chomp trailing CR/NL
+	// Chomp trailing CR/NL
+	for (c = &line [strlen (line) - 1] ; (*c == '\n') || (*c == '\r') ; --c)
+		*c = 0 ;
 
-  for (c = &line [strlen (line) - 1] ; (*c == '\n') || (*c == '\r') ; --c)
-    *c = 0 ;
-  
-  if (wiringPiDebug)
-    printf ("piboardId: Revision string: %s\n", line) ;
+	// Need to work out if it's using the new or old encoding scheme:
+	// Scan to the first character of the revision number
+	for (c = line ; *c ; ++c)
+    	if (*c == '=')
+      		break ;
 
-// Scan to first digit
+	if (*c != '=')
+    	piGpioLayoutOops ("Revision line (no equal)");
 
-  for (c = line ; *c ; ++c)
-    if (isdigit (*c))
-      break ;
+	c++;
+	for (i = 0; *c ; ++c)
+		revision[i++] = *c;
 
-// Make sure its long enough
+	revision[i] = '.';
 
-  if (strlen (c) < 4)
-    piBoardRevOops ("Bogus \"Revision\" line") ;
+	if (wiringPiDebug)
+		printf ("piBoardId: Board string: %s\n", revision) ;
 
-// If longer than 4, we'll assume it's been overvolted
+	/**/ if (strncmp(revision, "orangepi3.",               10) == 0) { *model = PI_MODEL_3; }
+	else if (strncmp(revision, "orangepi3-lts.",           14) == 0) { *model = PI_MODEL_3; }
+	else if (strncmp(revision, "orangepioneplus.",         16) == 0) { *model = PI_MODEL_LTIE_2; }
+	else if (strncmp(revision, "orangepilite2.", 	       14) == 0) { *model = PI_MODEL_LTIE_2; }
+	else if (strncmp(revision, "orangepizero.",            13) == 0) { *model = PI_MODEL_ZERO; }
+	else if (strncmp(revision, "orangepizerolts.",         16) == 0) { *model = PI_MODEL_ZERO; }
+	else if (strncmp(revision, "orangepizero-lts.",        17) == 0) { *model = PI_MODEL_ZERO; }
+	else if (strncmp(revision, "orangepir1.",              11) == 0) { *model = PI_MODEL_ZERO; }
+	else if (strncmp(revision, "orangepi-r1.",             12) == 0) { *model = PI_MODEL_ZERO; }
+	else if (strncmp(revision, "orangepipc.",              11) == 0) { *model = PI_MODEL_H3; }
+	else if (strncmp(revision, "orangepipcplus.",	       15) == 0) { *model = PI_MODEL_H3; }
+	else if (strncmp(revision, "orangepione.",             12) == 0) { *model = PI_MODEL_H3; }
+	else if (strncmp(revision, "orangepilite.",            13) == 0) { *model = PI_MODEL_H3; }
+	else if (strncmp(revision, "orangepiplus.",            13) == 0) { *model = PI_MODEL_H3; }
+	else if (strncmp(revision, "orangepiplue2e.",	       15) == 0) { *model = PI_MODEL_H3; }
+	else if (strncmp(revision, "orangepizeroplus2h3.",     20) == 0) { *model = PI_MODEL_ZERO_PLUS_2; }
+	else if (strncmp(revision, "orangepizeroplus2-h3.",    21) == 0) { *model = PI_MODEL_ZERO_PLUS_2; }
+	else if (strncmp(revision, "orangepiwin.",             12) == 0) { *model = PI_MODEL_WIN; }
+	else if (strncmp(revision, "orangepiwinplus.",         16) == 0) { *model = PI_MODEL_WIN; }
+	else if (strncmp(revision, "orangepiprime.",	       14) == 0) { *model = PI_MODEL_PRIME; }
+	else if (strncmp(revision, "orangepipc2.",             12) == 0) { *model = PI_MODEL_PC_2; }
+	else if (strncmp(revision, "orangepizeroplus.",        17) == 0) { *model = PI_MODEL_ZERO_PLUS; }
+	else if (strncmp(revision, "orangepizeroplus2h5.",     20) == 0) { *model = PI_MODEL_ZERO_PLUS_2; }
+	else if (strncmp(revision, "orangepizeroplus2-h5.",    21) == 0) { *model = PI_MODEL_ZERO_PLUS_2; }
+	else if (strncmp(revision, "orangepizero2.",           14) == 0) { *model = PI_MODEL_BPR;  *rev = PI_VERSION_1_2;  *mem = 1024;  *maker = PI_MAKER_LEMAKER; }
+	else if (strncmp(revision, "orangepizero2w.",          14) == 0) { *model = PI_MODEL_ZERO_2_W; }
+	else if (strncmp(revision, "orangepizero3.",           14) == 0) { *model = PI_MODEL_ZERO_2; }
+	else if (strncmp(revision, "orangepirk3399.",          15) == 0) { *model = PI_MODEL_RK3399; }
+	else if (strncmp(revision, "orangepi-rk3399.",         16) == 0) { *model = PI_MODEL_RK3399; }
+	else if (strncmp(revision, "orangepi800.",             12) == 0) { *model = PI_MODEL_800; }
+	else if (strncmp(revision, "orangepi4.",               10) == 0) { *model = PI_MODEL_4; }
+	else if (strncmp(revision, "orangepi4-lts.",           14) == 0) { *model = PI_MODEL_4_LTS; }
+	else if (strncmp(revision, "orangepir1plus.",          15) == 0) { *model = PI_MODEL_R1_PLUS; }
+	else if (strncmp(revision, "orangepi-r1plus.",         16) == 0) { *model = PI_MODEL_R1_PLUS; }
+	else if (strncmp(revision, "orangepir1plus-lts.",      18) == 0) { *model = PI_MODEL_R1_PLUS; }
+	else if (strncmp(revision, "orangepi-r1plus-lts.",     20) == 0) { *model = PI_MODEL_R1_PLUS; }
+	else if (strncmp(revision, "orangepi5.",               10) == 0) { *model = PI_MODEL_5; }
+	else if (strncmp(revision, "orangepi5b.",              11) == 0) { *model = PI_MODEL_5B; }
+	else if (strncmp(revision, "orangepi5plus.",           14) == 0) { *model = PI_MODEL_5_PLUS; }
+	else if (strncmp(revision, "orangepi900.",             12) == 0) { *model = PI_MODEL_900; }
+	else if (strncmp(revision, "orangepicm4.",             12) == 0) { *model = PI_MODEL_CM4; }
+	else if (strncmp(revision, "orangepi3b.",              11) == 0) { *model = PI_MODEL_3B; }
+	else if (strncmp(revision, "orangepi3plus.",           14) == 0) { *model = PI_MODEL_3_PLUS; }
 
-  *overVolted = strlen (c) > 4 ;
-  
-// Extract last 4 characters:
-
-  c = c + strlen (c) - 4 ;
-
-// Fill out the replys as appropriate
-
-  /**/ if (strcmp (c, "0002") == 0) { *model = PI_MODEL_B  ; *rev = PI_VERSION_1   ; *mem = 256 ; *maker = PI_MAKER_EGOMAN ; }
-  else if (strcmp (c, "0003") == 0) { *model = PI_MODEL_B  ; *rev = PI_VERSION_1_1 ; *mem = 256 ; *maker = PI_MAKER_EGOMAN ; }
-  else if (strcmp (c, "0004") == 0) { *model = PI_MODEL_B  ; *rev = PI_VERSION_2   ; *mem = 256 ; *maker = PI_MAKER_SONY   ; }
-  else if (strcmp (c, "0005") == 0) { *model = PI_MODEL_B  ; *rev = PI_VERSION_2   ; *mem = 256 ; *maker = PI_MAKER_QISDA  ; }
-  else if (strcmp (c, "0006") == 0) { *model = PI_MODEL_B  ; *rev = PI_VERSION_2   ; *mem = 256 ; *maker = PI_MAKER_EGOMAN ; }
-  else if (strcmp (c, "0007") == 0) { *model = PI_MODEL_A  ; *rev = PI_VERSION_2   ; *mem = 256 ; *maker = PI_MAKER_EGOMAN ; }
-  else if (strcmp (c, "0008") == 0) { *model = PI_MODEL_A  ; *rev = PI_VERSION_2   ; *mem = 256 ; *maker = PI_MAKER_SONY ; ; }
-  else if (strcmp (c, "0009") == 0) { *model = PI_MODEL_B  ; *rev = PI_VERSION_2   ; *mem = 256 ; *maker = PI_MAKER_QISDA  ; }
-  else if (strcmp (c, "000d") == 0) { *model = PI_MODEL_B  ; *rev = PI_VERSION_2   ; *mem = 512 ; *maker = PI_MAKER_EGOMAN ; }
-  else if (strcmp (c, "000e") == 0) { *model = PI_MODEL_B  ; *rev = PI_VERSION_2   ; *mem = 512 ; *maker = PI_MAKER_SONY   ; }
-  else if (strcmp (c, "000f") == 0) { *model = PI_MODEL_B  ; *rev = PI_VERSION_2   ; *mem = 512 ; *maker = PI_MAKER_EGOMAN ; }
-  else if (strcmp (c, "0010") == 0) { *model = PI_MODEL_BP ; *rev = PI_VERSION_1_2 ; *mem = 512 ; *maker = PI_MAKER_SONY   ; }
-  else if (strcmp (c, "0011") == 0) { *model = PI_MODEL_CM ; *rev = PI_VERSION_1_2 ; *mem = 512 ; *maker = PI_MAKER_SONY   ; }
-//add for BananaPro by LeMaker team
-  else if (strcmp (c, "0000") == 0) { *model = PI_MODEL_BPR;  *rev = PI_VERSION_1_2;  *mem = 1024;  *maker = PI_MAKER_LEMAKER;}
-//end 2014.09.30
-  else                              { *model = 0           ; *rev = 0              ; *mem =   0 ; *maker = 0 ;               }
+	if (wiringPiDebug)
+		printf("piBoardId: model = %d\n", *model);
 }
- 
+
 
 
 /*
