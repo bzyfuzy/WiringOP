@@ -1510,49 +1510,8 @@ void piBoardId (int *model, int *rev, int *mem, int *maker, int *overVolted)
 	if (wiringPiDebug)
 		printf ("piBoardId: Board string: %s\n", revision) ;
 
-	/**/ if (strncmp(revision, "orangepi3.",               10) == 0) { *model = PI_MODEL_3; }
-	else if (strncmp(revision, "orangepi3-lts.",           14) == 0) { *model = PI_MODEL_3; }
-	else if (strncmp(revision, "orangepioneplus.",         16) == 0) { *model = PI_MODEL_LTIE_2; }
-	else if (strncmp(revision, "orangepilite2.", 	       14) == 0) { *model = PI_MODEL_LTIE_2; }
-	else if (strncmp(revision, "orangepizero.",            13) == 0) { *model = PI_MODEL_ZERO; }
-	else if (strncmp(revision, "orangepizerolts.",         16) == 0) { *model = PI_MODEL_ZERO; }
-	else if (strncmp(revision, "orangepizero-lts.",        17) == 0) { *model = PI_MODEL_ZERO; }
-	else if (strncmp(revision, "orangepir1.",              11) == 0) { *model = PI_MODEL_ZERO; }
-	else if (strncmp(revision, "orangepi-r1.",             12) == 0) { *model = PI_MODEL_ZERO; }
-	else if (strncmp(revision, "orangepipc.",              11) == 0) { *model = PI_MODEL_H3; }
-	else if (strncmp(revision, "orangepipcplus.",	       15) == 0) { *model = PI_MODEL_H3; }
-	else if (strncmp(revision, "orangepione.",             12) == 0) { *model = PI_MODEL_H3; }
-	else if (strncmp(revision, "orangepilite.",            13) == 0) { *model = PI_MODEL_H3; }
-	else if (strncmp(revision, "orangepiplus.",            13) == 0) { *model = PI_MODEL_H3; }
-	else if (strncmp(revision, "orangepiplue2e.",	       15) == 0) { *model = PI_MODEL_H3; }
-	else if (strncmp(revision, "orangepizeroplus2h3.",     20) == 0) { *model = PI_MODEL_ZERO_PLUS_2; }
-	else if (strncmp(revision, "orangepizeroplus2-h3.",    21) == 0) { *model = PI_MODEL_ZERO_PLUS_2; }
-	else if (strncmp(revision, "orangepiwin.",             12) == 0) { *model = PI_MODEL_WIN; }
-	else if (strncmp(revision, "orangepiwinplus.",         16) == 0) { *model = PI_MODEL_WIN; }
-	else if (strncmp(revision, "orangepiprime.",	       14) == 0) { *model = PI_MODEL_PRIME; }
-	else if (strncmp(revision, "orangepipc2.",             12) == 0) { *model = PI_MODEL_PC_2; }
-	else if (strncmp(revision, "orangepizeroplus.",        17) == 0) { *model = PI_MODEL_ZERO_PLUS; }
-	else if (strncmp(revision, "orangepizeroplus2h5.",     20) == 0) { *model = PI_MODEL_ZERO_PLUS_2; }
-	else if (strncmp(revision, "orangepizeroplus2-h5.",    21) == 0) { *model = PI_MODEL_ZERO_PLUS_2; }
-	else if (strncmp(revision, "orangepizero2.",           14) == 0) { *model = PI_MODEL_BPR;  *rev = PI_VERSION_1_2;  *mem = 1024;  *maker = PI_MAKER_LEMAKER; }
-	else if (strncmp(revision, "orangepizero2w.",          14) == 0) { *model = PI_MODEL_ZERO_2_W; }
-	else if (strncmp(revision, "orangepizero3.",           14) == 0) { *model = PI_MODEL_ZERO_2; }
-	else if (strncmp(revision, "orangepirk3399.",          15) == 0) { *model = PI_MODEL_RK3399; }
-	else if (strncmp(revision, "orangepi-rk3399.",         16) == 0) { *model = PI_MODEL_RK3399; }
-	else if (strncmp(revision, "orangepi800.",             12) == 0) { *model = PI_MODEL_800; }
-	else if (strncmp(revision, "orangepi4.",               10) == 0) { *model = PI_MODEL_4; }
-	else if (strncmp(revision, "orangepi4-lts.",           14) == 0) { *model = PI_MODEL_4_LTS; }
-	else if (strncmp(revision, "orangepir1plus.",          15) == 0) { *model = PI_MODEL_R1_PLUS; }
-	else if (strncmp(revision, "orangepi-r1plus.",         16) == 0) { *model = PI_MODEL_R1_PLUS; }
-	else if (strncmp(revision, "orangepir1plus-lts.",      18) == 0) { *model = PI_MODEL_R1_PLUS; }
-	else if (strncmp(revision, "orangepi-r1plus-lts.",     20) == 0) { *model = PI_MODEL_R1_PLUS; }
-	else if (strncmp(revision, "orangepi5.",               10) == 0) { *model = PI_MODEL_5; }
-	else if (strncmp(revision, "orangepi5b.",              11) == 0) { *model = PI_MODEL_5B; }
-	else if (strncmp(revision, "orangepi5plus.",           14) == 0) { *model = PI_MODEL_5_PLUS; }
-	else if (strncmp(revision, "orangepi900.",             12) == 0) { *model = PI_MODEL_900; }
-	else if (strncmp(revision, "orangepicm4.",             12) == 0) { *model = PI_MODEL_CM4; }
-	else if (strncmp(revision, "orangepi3b.",              11) == 0) { *model = PI_MODEL_3B; }
-	else if (strncmp(revision, "orangepi3plus.",           14) == 0) { *model = PI_MODEL_3_PLUS; }
+	/**/ if (strncmp(revision, "orangepizero2.", 10) == 0) { *model = PI_MODEL_BPR;  *rev = PI_VERSION_1_2;  *mem = 1024;  *maker = PI_MAKER_LEMAKER;  }
+	
 
 	if (wiringPiDebug)
 		printf("piBoardId: model = %d\n", *model);
